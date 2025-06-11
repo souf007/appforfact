@@ -3,11 +3,13 @@ session_start();
 include("config.php");
 
 if(isset($_POST['username'])){
-	$back = $bdd->query("SELECT * FROM users WHERE email='".sanitize_vars($_POST['username'])."' AND password='".sanitize_vars($_POST['password'])."'");
+	$back = $bdd->prepare("SELECT * FROM users WHERE email=? AND password=?");
+    $back->execute([$_POST['username'], $_POST['password']]);
 	if($back->rowCount() == 1){
-		$back = $bdd->query("SELECT * FROM users WHERE email='".sanitize_vars($_POST['username'])."' AND password='".sanitize_vars($_POST['password'])."' AND trash='1'");
+		$back = $bdd->prepare("SELECT * FROM users WHERE email=? AND password=? AND trash='1'");
+        $back->execute([$_POST['username'], $_POST['password']]);
 		if($back->rowCount() == 1){
-			$row = $back->fetch();
+			$row = $back->fetch(PDO::FETCH_ASSOC);
 			$_SESSION['easybm_id'] = $row['id'];
 			$_SESSION['easybm_fullname'] = $row['fullname'];
 			$_SESSION['easybm_picture'] = $row['picture'];
@@ -15,95 +17,53 @@ if(isset($_POST['username'])){
 			$_SESSION['easybm_email'] = $row['email'];
 			$_SESSION['easybm_password'] = $row['password'];
 			$_SESSION['easybm_roles'] = $row['roles'];
-			$_SESSION['easybm_companies'] = "0,".$row['companies']!=""?$row['companies']:0;
+			$_SESSION['easybm_companies'] = "0,".($row['companies'] ?? '0');
 			$_SESSION['easybm_type'] = $row['type'];
 			$_SESSION['easybm_superadmin'] = $row['superadmin'];
 
-			if(isset($_POST['rememberme'])){
-				setcookie('rememberme', 'yes', time() + (86400 * 2));
-				setcookie('id', $_SESSION['easybm_id'], time() + (86400 * 2));
-				setcookie('fullname', $_SESSION['easybm_fullname'], time() + (86400 * 2));
-				setcookie('picture', $_SESSION['easybm_picture'], time() + (86400 * 2));
-				setcookie('phone', $_SESSION['easybm_phone'], time() + (86400 * 2));
-				setcookie('email', $_SESSION['easybm_email'], time() + (86400 * 2));
-				setcookie('password', $_SESSION['easybm_password'], time() + (86400 * 2));
-				setcookie('roles', $_SESSION['easybm_roles'], time() + (86400 * 2));
-				setcookie('companies', $_SESSION['easybm_companies'], time() + (86400 * 2));
-				setcookie('type', $_SESSION['easybm_type'], time() + (86400 * 2));
-				setcookie('superadmin', $_SESSION['easybm_superadmin'], time() + (86400 * 2));
-			}
-			else{
-				setcookie('rememberme', 'yes', time() - 3600);
-				setcookie('id', $_SESSION['easybm_id'], time() - 3600);
-				setcookie('fullname', $_SESSION['easybm_fullname'], time() - 3600);
-				setcookie('picture', $_SESSION['easybm_picture'], time() - 3600);
-				setcookie('phone', $_SESSION['easybm_phone'], time() - 3600);
-				setcookie('email', $_SESSION['easybm_email'], time() - 3600);
-				setcookie('password', $_SESSION['easybm_password'], time() - 3600);
-				setcookie('roles', $_SESSION['easybm_roles'], time() - 3600);
-				setcookie('companies', $_SESSION['easybm_companies'], time() - 3600);
-				setcookie('type', $_SESSION['easybm_type'], time() - 3600);	
-				setcookie('superadmin', $_SESSION['easybm_superadmin'], time() - 3600);	
+            if(isset($_POST['rememberme'])){
+                $expiry = time() + (86400 * 30); // 30 days
+				setcookie('rememberme', 'yes', $expiry);
+				setcookie('id', $_SESSION['easybm_id'], $expiry);
+				setcookie('fullname', $_SESSION['easybm_fullname'], $expiry);
+			} else {
+                $expiry = time() - 3600;
+				setcookie('rememberme', "", $expiry);
+				setcookie('id', "", $expiry);
+				setcookie('fullname', "", $expiry);
 			}
 						
-			if(preg_match("#Consulter Tableau de bord#",$_SESSION['easybm_roles'])){	
-				$page = "index.php";
-			}
-			elseif(preg_match("#Consulter Historique des paiements#",$_SESSION['easybm_roles'])){	
-				$page = "payments.php";
-			}
-			elseif(preg_match("#Consulter Factures,#",$_SESSION['easybm_roles'])){	
-				$page = "factures.php";
-			}
-			elseif(preg_match("#Consulter Devis#",$_SESSION['easybm_roles'])){	
-				$page = "devis.php";
-			}
-			elseif(preg_match("#Consulter Factures proforma#",$_SESSION['easybm_roles'])){	
-				$page = "facturesproforma.php";
-			}
-			elseif(preg_match("#Consulter Bons de livraison#",$_SESSION['easybm_roles'])){	
-				$page = "bl.php";
-			}
-			elseif(preg_match("#Consulter Bons de sortie#",$_SESSION['easybm_roles'])){	
-				$page = "bs.php";
-			}
-			elseif(preg_match("#Consulter Bons de retour#",$_SESSION['easybm_roles'])){	
-				$page = "br.php";
-			}
-			elseif(preg_match("#Consulter Factures avoir#",$_SESSION['easybm_roles'])){	
-				$page = "avoirs.php";
-			}
-			elseif(preg_match("#Consulter Clients#",$_SESSION['easybm_roles'])){	
-				$page = "clients.php";
-			}
-			elseif(preg_match("#Consulter Bons de commande#",$_SESSION['easybm_roles'])){	
-				$page = "bc.php";
-			}
-			elseif(preg_match("#Consulter Bons de récéption#",$_SESSION['easybm_roles'])){	
-				$page = "bre.php";
-			}
-			elseif(preg_match("#Consulter Fournisseurs#",$_SESSION['easybm_roles'])){	
-				$page = "suppliers.php";
-			}
-			elseif(preg_match("#Consulter Utilisateurs#",$_SESSION['easybm_roles'])){	
-				$page = "users.php";
-			}
-			else{
-				$page = "login.php";
-			}
-			header('location: '.$page);
+			$page_map = [
+                "Consulter Tableau de bord" => "index.php",
+                "Consulter Historique des paiements" => "payments.php",
+                "Consulter Factures," => "factures.php",
+                "Consulter Devis" => "devis.php",
+                "Consulter Factures proforma" => "facturesproforma.php",
+                "Consulter Bons de livraison" => "bl.php",
+                "Consulter Bons de sortie" => "bs.php",
+                "Consulter Bons de retour" => "br.php",
+                "Consulter Factures avoir" => "avoirs.php",
+                "Consulter Clients" => "clients.php",
+                "Consulter Bons de commande" => "bc.php",
+                "Consulter Bons de récéption" => "bre.php",
+                "Consulter Fournisseurs" => "suppliers.php",
+                "Consulter Utilisateurs" => "users.php"
+            ];
+
+            $redirect_page = "login.php";
+            foreach($page_map as $role => $page){
+                if(preg_match("#$role#", $_SESSION['easybm_roles'])){
+                    $redirect_page = $page;
+                    break;
+                }
+            }
+			header('location: '.$redirect_page);
+            exit;
 		}
 	}
 	else{
 		$error = 'Login ou mot de passe est incorrect';
 	}
-}
-
-function sanitize_vars($var){
-	if(preg_match("#script|select|update|delete|concat|create|table|union|length|show_table|mysql_list_tables|mysql_list_fields|mysql_list_dbs#i",$var)){
-		$var = "";
-	}
-	return htmlspecialchars(addslashes(trim($var)));
 }
 
 if(file_exists("configdb.data")){
@@ -115,81 +75,69 @@ if(file_exists("installer.php")){
 
 ?>
 <!DOCTYPE html>
-<html lang="zxx">
+<html lang="fr">
 	<head>
 		<meta charset="utf-8">
 		<title>Login</title>
-		<meta name="description" content="<?php echo $settings['store'];?>">
+		<meta name="description" content="<?php echo htmlspecialchars($settings['store']);?>">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="robots" content="noindex,nofollow" />
-		<!-- General CSS Settings -->
-		<link rel="stylesheet" href="css/general_style.css">
-		<!-- Main Style of the template -->
-		<link rel="stylesheet" href="css/main_style.php">
-		<!-- Landing Page Style -->
-		<link rel="stylesheet" href="css/reset_style.css">
-		<!-- Awesomefont -->
-		<link href="https://use.fontawesome.com/releases/v5.0.7/css/all.css" rel="stylesheet">
-		<!-- Fav Icon -->
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="css/modern_theme.css">
+		<link rel="stylesheet" href="css/fontawesome-free-5.15.4-web/css/all.min.css">
 		<link rel="shortcut icon" href="favicon.ico">
 		<?php include("onesignal.php");?>
 	</head>
 	<body>
-
-		<!-- Wrapper -->
-		<div class="lx-wrapper">
-			<!-- Main -->
-			<div class="lx-main">
-				<div class="lx-left-bg">
-					<div class="lx-login">
-						<div class="lx-login-content">
-							<center><img src="<?php echo $settings['logo']=="logo.png"?"images/".$settings['logo']:"uploads/".$settings['logo'];?>" /></center>
-							<p>Se connecter</p>
-							<form action="login.php" method="post">
-								<?php
-								if(isset($error)){
-									?>
-								<p class="lx-login-error"><?php echo $error;?></p>
-									<?php
-								}
-								?>
-								<div class="lx-textfield">
-									<label><input type="text" autocomplete="off" name="username" value="<?php echo isset($_COOKIE['email'])?$_COOKIE['email']:"";?>" placeholder="Login" /></label>
-								</div>
-								<div class="lx-textfield">
-									<label><input type="password" name="password" value="<?php echo isset($_COOKIE['password'])?$_COOKIE['password']:"";?>" placeholder="Mot de passe" /><i class="fa fa-eye-slash"></i></label>
-								</div>
-								<div class="lx-textfield">
-									<label style="float:left;"><input type="checkbox" name="rememberme" value="yes" <?php echo isset($_COOKIE['rememberme'])?"checked":"";?> /> Se souvenir de moi<del class="checkmark"></del></label>
-									<div class="lx-clear-fix"></div>
-								</div>
-								<div class="lx-submit">
-									<a href="javascript:;">Se connecter</a>
-								</div>
-							</form>
-						</div>
-					</div>				
-				</div>
-				<?php
-				$cover = "images/bg.jpg";
-				if($settings['cover'] != "bg.jpg"){
-					$cover = "uploads/".$settings['cover'];
-				}
-				?>				
-				<div class="lx-right-bg" style="background:url('<?php echo $cover;?>');background-size:cover;">
-					<div class="lx-right-bg-shadow">
-						<div>
-							<h3>EasyDoc</h3>
-							<b>Your Commercial Docs Creator!</b>
-						</div>
-					</div>
-				</div>
-			</div>
+		<div class="lx-login-wrapper">
+            <div class="lx-login-left">
+                <div class="lx-login-form-container">
+                    <div class="lx-login-logo">
+                        <img src="<?php echo $settings['logo']=="logo.png"?"images/".$settings['logo']:"uploads/".$settings['logo'];?>" alt="Logo">
+                    </div>
+                    <div class="lx-login-form">
+                        <h2>Se connecter</h2>
+                        <p>Bon retour! Veuillez saisir vos coordonnées.</p>
+                         <form action="login.php" method="post" id="loginForm">
+                            <?php if(isset($error)): ?>
+                                <div class="lx-login-error"><?php echo $error; ?></div>
+                            <?php endif; ?>
+                            <div class="lx-textfield">
+                                <label for="username">Email</label>
+                                <input type="text" id="username" name="username" value="<?php echo isset($_COOKIE['email']) ? htmlspecialchars($_COOKIE['email']) : "";?>" placeholder="vous@exemple.com" required>
+                            </div>
+                            <div class="lx-textfield">
+                                <label for="password">Mot de passe</label>
+                                <input type="password" id="password" name="password" value="<?php echo isset($_COOKIE['password']) ? htmlspecialchars($_COOKIE['password']) : "";?>" placeholder="********" required>
+                            </div>
+                            <div class="lx-form-options">
+                                <label class="lx-checkbox"><input type="checkbox" name="rememberme" value="yes" <?php echo isset($_COOKIE['rememberme'])?"checked":"";?>> Se souvenir de moi</label>
+                                <a href="#" class="lx-password-forgotten">Mot de passe oublié?</a>
+                            </div>
+                            <div class="lx-submit">
+                                <button type="submit" class="lx-btn">Se connecter</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="lx-login-right">
+                 <div class="lx-login-right-overlay">
+                    <h3>EasyDoc</h3>
+                    <p>Votre créateur de documents commerciaux!</p>
+                </div>
+            </div>
 		</div>
-		<?php DB_Sanitize();?>
-		<!-- JQuery -->
 		<script src="js/jquery-1.12.4.min.js"></script>
-		<!-- Main Script -->
 		<script src="js/script.js"></script>
+        <script>
+            $(document).ready(function() {
+                $('#loginForm').on('submit', function(e) {
+                    e.preventDefault();
+                    // Add modern form validation here if needed
+                    this.submit();
+                });
+            });
+        </script>
 	</body>
 </html>

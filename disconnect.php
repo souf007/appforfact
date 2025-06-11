@@ -1,18 +1,36 @@
 <?php
 session_start();
-session_destroy();
-if(isset($_COOKIE['id'])){
-	setcookie('id', $_SESSION['easybm_id'], time() - 3600);
-	setcookie('fullname', $_SESSION['easybm_fullname'], time() - 3600);
-	setcookie('picture', $_SESSION['easybm_picture'], time() - 3600);
-	setcookie('phone', $_SESSION['easybm_phone'], time() - 3600);
-	setcookie('roles', $_SESSION['easybm_roles'], time() - 3600);
-	setcookie('defaultstate', $_SESSION['easybm_defaultstate'], time() - 3600);
-	setcookie('depots', $_SESSION['easybm_depots'], time() - 3600);
-	setcookie('companies', $_SESSION['easybm_companies'], time() - 3600);
-	setcookie('projects', $_SESSION['easybm_projects'], time() - 3600);
-	setcookie('type', $_SESSION['easybm_type'], time() - 3600);	
-	setcookie('superadmin', $_SESSION['easybm_superadmin'], time() - 3600);	
+
+// Unset all of the session variables
+$_SESSION = [];
+
+// If it's desired to kill the session, also delete the session cookie.
+// Note: This will destroy the session, and not just the session data!
+if (ini_get("session.use_cookies")) {
+    $params = session_get_cookie_params();
+    setcookie(session_name(), '', time() - 42000,
+        $params["path"], $params["domain"],
+        $params["secure"], $params["httponly"]
+    );
 }
+
+// Finally, destroy the session.
+session_destroy();
+
+// Expire all relevant cookies
+$cookies = [
+    'id', 'fullname', 'picture', 'phone', 'roles', 
+    'defaultstate', 'depots', 'companies', 'projects', 
+    'type', 'superadmin', 'rememberme', 'email', 'password'
+];
+
+foreach ($cookies as $cookie) {
+    if(isset($_COOKIE[$cookie])){
+        setcookie($cookie, '', time() - 3600, "/");
+    }
+}
+
+// Redirect to the login page
 header('Location: login.php');
+exit;
 ?>

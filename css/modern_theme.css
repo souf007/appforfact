@@ -1,0 +1,200 @@
+:root {
+    --primary-color: #4a90e2;
+    --primary-hover-color: #357ABD;
+    --background-color: #f0f2f5;
+    --text-color: #333;
+    --card-background-color: rgba(255, 255, 255, 0.8);
+    --card-border-color: rgba(255, 255, 255, 0.3);
+    --header-background-color: #ffffff;
+    --header-shadow-color: rgba(0, 0, 0, 0.05);
+    --sidebar-background-color: #2c3e50;
+    --sidebar-text-color: #ffffff;
+    --sidebar-active-color: var(--primary-color);
+    --error-color: #e74c3c;
+    --success-color: #2ecc71;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    overflow: hidden; /* Hide scrollbars */
+}
+
+.lx-login-wrapper {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+}
+
+.lx-login-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-image: url('../images/bg.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: blur(10px);
+    z-index: -1;
+}
+
+.lx-login-left {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0,0,0,0.1);
+}
+
+.lx-login-form-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 3rem;
+    background: var(--card-background-color);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    border: 1px solid var(--card-border-color);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+}
+
+.lx-login-logo {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.lx-login-logo img {
+    max-width: 150px;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.lx-login-form h2 {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.lx-login-form p {
+    text-align: center;
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.lx-textfield {
+    margin-bottom: 1.5rem;
+}
+
+.lx-textfield label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.lx-textfield input {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #fff;
+    transition: all 0.3s ease;
+}
+
+.lx-textfield input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2);
+    outline: none;
+}
+
+.lx-form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.lx-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.lx-checkbox input {
+    margin-right: 0.5rem;
+}
+
+.lx-password-forgotten {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.lx-password-forgotten:hover {
+    text-decoration: underline;
+}
+
+.lx-submit .lx-btn {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 10px;
+    background-color: var(--primary-color);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.lx-submit .lx-btn:hover {
+    background-color: var(--primary-hover-color);
+}
+
+.lx-login-right {
+    flex: 1;
+    display: none; /* Hidden by default, shown on larger screens */
+}
+
+@media (min-width: 768px) {
+    .lx-login-right {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .lx-login-right-overlay {
+        text-align: center;
+        color: #fff;
+    }
+
+    .lx-login-right-overlay h3 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .lx-login-right-overlay p {
+        font-size: 1.25rem;
+    }
+}
+
+.lx-login-error {
+    background-color: var(--error-color);
+    color: white;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.lx-main-menu ul li a i {
+    filter: blur(0.5px);
+}
