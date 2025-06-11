@@ -2,8 +2,6 @@
 session_start();
 include("config.php");
 
-$_SESSION['easybm_errorimport'] = "";
-
 if(!isset($_SESSION['easybm_id'])){
 	header('location: login.php');
 	exit;
@@ -12,16 +10,16 @@ if(!isset($_SESSION['easybm_id'])){
 if(!preg_match("#Consulter Tableau de bord#",$_SESSION['easybm_roles'])){
     $page_map = [
         "Consulter Historique des paiements" => "payments.php",
-        "Consulter Factures," => "factures.php",
-        "Consulter Devis" => "devis.php",
-        "Consulter Factures proforma" => "facturesproforma.php",
-        "Consulter Bons de livraison" => "bl.php",
-        "Consulter Bons de sortie" => "bs.php",
-        "Consulter Bons de retour" => "br.php",
-        "Consulter Factures avoir" => "avoirs.php",
+        "Consulter Factures," => "documents.php?type=factures",
+        "Consulter Devis" => "documents.php?type=devis",
+        "Consulter Factures proforma" => "documents.php?type=facturesproforma",
+        "Consulter Bons de livraison" => "documents.php?type=bl",
+        "Consulter Bons de sortie" => "documents.php?type=bs",
+        "Consulter Bons de retour" => "documents.php?type=br",
+        "Consulter Factures avoir" => "documents.php?type=avoirs",
         "Consulter Clients" => "clients.php",
-        "Consulter Bons de commande" => "bc.php",
-        "Consulter Bons de récéption" => "bre.php",
+        "Consulter Bons de commande" => "documents.php?type=bc",
+        "Consulter Bons de récéption" => "documents.php?type=bre",
         "Consulter Fournisseurs" => "suppliers.php",
         "Consulter Utilisateurs" => "users.php"
     ];
@@ -62,76 +60,34 @@ if(!preg_match("#Consulter Tableau de bord#",$_SESSION['easybm_roles'])){
 				<header class="lx-header">
 					<?php include('header.php');?>
 				</header>
-				<main>
+				<main class="lx-main-content-inner">
 					<div class="lx-page-header">
 						<h1>Tableau de bord</h1>
 						<p>Aperçu des performances de votre entreprise</p>
 					</div>
 
 					<div class="lx-page-content">
-						<div class="lx-g1-f">
-							<div class="lx-keyword lx-g1">
-								<h3>Filtre global</h3>
-								<div class="filter-grid">
-									<?php
-									$styleday = "";
-									$rangedate = gmdate("d/m/Y",time()-(60*60*24*29))." - ".gmdate("d/m/Y");
-									$rangedateplaceholder = "Date création";
-									$startdate = gmdate("d/m/Y",time()-(60*60*24*29));
-									$enddate = gmdate("d/m/Y");
-									if(preg_match("#Consultation de la journée en cours seulement Tableau de bord#",$_SESSION['easybm_roles'])){
-										$styleday = "display:none;";
-										$rangedate = gmdate("d/m/Y")." - ".gmdate("d/m/Y");
-										$startdate = gmdate("d/m/Y");
-										$enddate = gmdate("d/m/Y");
-									}
-									?>
-									<div style="<?php echo $styleday;?>" class="lx-textfield">
-										<label for="dateadd">Date création:</label>
-										<input type="text" autocomplete="off" name="dateadd" id="dateadd" title="Date création" value="<?php echo $rangedate;?>" placeholder="<?php echo $rangedateplaceholder;?>" />
-									</div>
-									<input type="hidden" name="datestart" id="datestart" value="<?php echo $startdate;?>" />
-									<input type="hidden" name="dateend" id="dateend" value="<?php echo $enddate;?>" />
-
-									<div class="lx-textfield">
-										<label for="company">Sociétés</label>
-										<select name="company" id="company" multiple>
-											<?php
-											$back = $bdd->query("SELECT id,rs FROM companies WHERE trash='1'".$companiesid." ORDER BY rs");
-											while($row = $back->fetch()){
-												echo '<option value="'.$row['id'].'">'.htmlspecialchars($row['rs']).'</option>';
-											}
-											?>
-										</select>
-									</div>
-									<div class="lx-textfield" style="<?php echo preg_match("#Consulter Clients#",$_SESSION['easybm_roles'])?"":"display:none;";?>">
-										<label for="client">Clients</label>
-										<select name="client" id="client" multiple>
-											<?php
-											$back = $bdd->query("SELECT id,code,fullname FROM clients WHERE fullname<>''".$multicompanies." ORDER BY fullname");
-											while($row = $back->fetch()){
-												echo '<option value="'.$row['id'].'">'.htmlspecialchars($row['fullname']." (".$row['code'].")").'</option>';
-											}
-											?>
-										</select>
-									</div>
-									<div class="lx-textfield" style="<?php echo preg_match("#Consulter Fournisseurs#",$_SESSION['easybm_roles'])?"":"display:none;";?>">
-										<label for="supplier">Fournisseurs</label>
-										<select name="supplier" id="supplier" multiple>
-											 <?php
-											$back = $bdd->query("SELECT id,code,title FROM suppliers WHERE title<>''".$multicompanies." ORDER BY title");
-											while($row = $back->fetch()){
-												echo '<option value="'.$row['id'].'">'.htmlspecialchars($row['title']." (".$row['code'].")").'</option>';
-											}
-											?>
-										</select>
-									</div>
-									<div class="lx-textfield">
-										<a href="index.php" class="lx-btn lx-btn-secondary"><i class="fa fa-sync-alt"></i> Réinitialiser</a>
-									</div>
-								</div>
-							</div>
-						</div>
+                        <div class="lx-g1-f">
+                            <div class="lx-keyword lx-g1">
+                                <div class="filter-grid">
+                                    <div class="lx-textfield">
+                                        <label for="dateadd">Date création:</label>
+                                        <input type="text" autocomplete="off" name="dateadd" id="dateadd" title="Date création" value="<?php echo gmdate("d/m/Y",time()-(60*60*24*29))." - ".gmdate("d/m/Y");?>" placeholder="Date création" />
+                                    </div>
+                                    <div class="lx-textfield">
+                                        <label for="company">Sociétés</label>
+                                        <select name="company" id="company" multiple>
+                                            <?php
+                                            $back = $bdd->query("SELECT id,rs FROM companies WHERE trash='1'".$companiesid." ORDER BY rs");
+                                            while($row = $back->fetch()){
+                                                echo '<option value="'.$row['id'].'">'.htmlspecialchars($row['rs']).'</option>';
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 					</div>
 
 					<div class="lx-page-content">
